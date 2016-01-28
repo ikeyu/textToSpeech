@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Web Speech Test</title>
+    
+  <style>
+    body {
+      text-align: center;
+    }
+
+    h1{
+        padding-bottom:20px;
+    }
+
+    #textToSpeech {
+      border-radius: 10px;
+      border: 1px solid #f0f0f0;
+      padding: 0.5rem;
+      width: 300px;
+      font-size: 1rem;
+    }
+
+    #getVoices,
+    #speakBtn {
+      background: linear-gradient(#09C, #09C, #09C, #069);
+      border: 1px solid #DDD;
+      border-radius: 5px;
+      font-size: 1rem;
+      color: #FFF;
+      width: 120px;
+      padding: 10px 0;
+      margin-bottom: 20px;
+    }
+
+    .config {
+      margin: 0 auto;
+      width: 300px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .btn{
+      width: 200px;
+      margin-left: 5px;
+    }
+
+  </style>  
+  </head>
+  <body>
+    <h1>Text To Speech</h1>
+    <P><input type="text" id="textToSpeech" pattern="^[0-9A-Za-z]+$" placeholder="Input Text"></P>
+    <P><button id="speakBtn">Say It</button></P>
+  
+    <div class="config">
+      <p><label for="language">Selecet Voice</label>
+      <select class="btn" id="select" name="language"></select></p>
+
+      <p><button id="getVoices">Get Voices</button></p>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
+$(function(){
+
+  'use strict'
+
+  var select = document.getElementById('select');
+  var voiceList = [
+      'Google US English',
+      'Google UK English Female',
+      'Google UK English Male',
+  ];
+
+  function voiceSet(array) {
+    while (select.firstChild) select.removeChild(select.firstChild);
+    for ( var i in array ) {
+      var option = document.createElement('option');
+      option.setAttribute('value', array[i]);
+      option.innerHTML = array[i];
+      select.appendChild(option);
+    }
+  }
+  voiceSet(voiceList);
+
+  var utterance = new SpeechSynthesisUtterance();
+      utterance.volume = 1;
+      utterance.rate = 1;
+      utterance.pitch = 1;
+  var voices = speechSynthesis.getVoices();
+
+  var loadVoices = function() {
+    voices = speechSynthesis.getVoices();
+  }
+  loadVoices();
+
+  function getVoices() {
+    var voices = speechSynthesis.getVoices();
+    var option = document.createElement('option');
+    for (var i = 0; i < voices.length; i++) {
+      voiceList.push(voices[i].name);
+    }
+
+    voiceList = voiceList.filter(function (x, i, self) {
+      return self.indexOf(x) === i;
+    });
+    voiceSet(voiceList);
+    console.log(voiceList);
+  }
+
+  $('#getVoices').on('click', function() {
+    getVoices();
+  });
+
+  console.log(utterance.voice);
+
+  $('#speakBtn').on('click', function() {    
+
+    if (!'SpeechSynthesisUtterance' in window) {
+        alert('TextToSpeech に未対応です.');
+        return;
+    }
+
+    var speechText = document.getElementById('textToSpeech').value;
+    var speechVoice = select.value;
+    utterance.text = speechText;
+    utterance.voice = null;
+    voices = speechSynthesis.getVoices();
+      for (var i = 0; i < voices.length; i++) {
+        if (voices[i].name == speechVoice) {
+          utterance.voice = voices[i];
+          speechSynthesis.speak(utterance);
+        }
+      }
+  });
+ 
+ });
+  </script>
+  </body>
+</html> 
